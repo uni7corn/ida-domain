@@ -1,0 +1,91 @@
+name: Run tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ida_version:
+          - version: "9.1"
+            installer_path: "release/9.1/ida-pro/ida-pro_91_x64linux.run"
+          - version: "9.2"
+            installer_path: "beta/9.2-beta-2/ida-pro/ida-pro_92_x64linux.run"
+      fail-fast: false  # Continue running other matrix jobs even if one fails
+
+
+    name: Running tests on IDA ${{ matrix.ida_version.version }}
+
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v4
+
+    - name: Set up Python and uv
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.13"
+
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Install IDA ${{ matrix.ida_version.version }}
+      run: |
+        echo "Installing hcli..."
+        uv tool install ida-hcli==0.0.27
+        echo "Downloading and installing IDA ${{ matrix.ida_version.version }}..."
+        mkdir -p /opt/ida/
+        hcli ida install -d ${{ matrix.ida_version.installer_path }} -l ${{ secrets.IDA_LICENSE_ID }} -i /opt/ida/
+        echo "Done!"
+      env:
+        HCLI_API_KEY: ${{ secrets.HCLI_API_KEY }}
+
+    - name: Sync dependencies
+      run: |
+        # Sync project dependencies
+        uv sync --extra dev
+
+        echo "Installing idapro..."
+        uv pip install idapro
+
+    - name: Run linter
+      run: |
+        echo "Running linter checks..."
+        uvx ruff check
+
+    - name: Run tests and generate coverage
+      run: |
+        # Run tests with code coverage
+        uv run coverage run --source=ida_domain -m pytest -v --junitxml=test-results.xml
+      env:
+        IDADIR: /opt/ida/
+
+    - name: Generate coverage reports
+      run: |
+        # Generate different coverage report formats
+        # NOTE: coverage are broken in CI due to a bug in IDA 9.1
+        # IDA-5480 is fixed in development, the fix will be part of in 9.2
+        uv run coverage report --include="ida_domain/*"
+        uv run coverage xml --include="ida_domain/*"
+        uv run coverage html --include="ida_domain/*"
+
+    - name: Upload test results and coverage
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-and-coverage-ida-${{ matrix.ida_version.version }}
+        path: |
+          test-results.xml
+          coverage.xml
+          htmlcov/
+        retention-days: 30
