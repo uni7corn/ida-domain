@@ -105,6 +105,15 @@ class Names(DatabaseEntity):
     def __getitem__(self, index: int) -> Tuple[ea_t, str] | None:
         return self.get_at_index(index)
 
+    def __len__(self) -> int:
+        """
+        Returns the total number of named elements in the database.
+
+        Returns:
+            The number of named elements.
+        """
+        return self.get_count()
+
     def get_count(self) -> int:
         """
         Retrieves the total number of named elements in the database.

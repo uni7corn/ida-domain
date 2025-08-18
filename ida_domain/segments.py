@@ -82,6 +82,15 @@ class Segments(DatabaseEntity):
         """
         return ida_segment.set_segm_name(segment, name)
 
+    def __len__(self) -> int:
+        """
+        Returns the number of segments in the database.
+
+        Returns:
+            The total count of segments.
+        """
+        return ida_segment.get_segm_qty()
+
     def get_all(self) -> Iterator[segment_t]:
         """
         Retrieves an iterator over all segments in the database.

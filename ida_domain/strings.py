@@ -99,6 +99,15 @@ class Strings(DatabaseEntity):
     def __getitem__(self, index: int) -> Tuple[ea_t, str] | None:
         return self.get_at_index(index)
 
+    def __len__(self) -> int:
+        """
+        Returns the total number of extracted strings.
+
+        Returns:
+            The number of stored strings.
+        """
+        return ida_strlist.get_strlist_qty()
+
     def get_count(self) -> int:
         """
         Retrieves the total number of extracted strings.

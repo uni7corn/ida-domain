@@ -54,6 +54,14 @@ class Functions(DatabaseEntity):
     def __iter__(self) -> Iterator[func_t]:
         return self.get_all()
 
+    def __len__(self) -> int:
+        """Return the total number of functions in the database.
+
+        Returns:
+            int: The number of functions in the program.
+        """
+        return ida_funcs.get_func_qty()
+
     def get_between(self, start_ea: ea_t, end_ea: ea_t) -> Iterator[func_t]:
         """
         Retrieves functions within the specified address range.
