@@ -136,6 +136,7 @@ def test_database(test_env):
 def test_segment(test_env):
     db = test_env
 
+    assert len(db.segments) == 4
     for segment in db.segments:
         assert db.segments.get_name(segment)
 
@@ -155,6 +156,7 @@ def test_segment(test_env):
 def test_function(test_env):
     db = test_env
 
+    assert len(db.functions) == 8
     for idx, func in enumerate(db.functions):
         if idx == 0:
             assert func is not None
@@ -265,6 +267,7 @@ def test_entries(test_env):
     assert count == 1
 
     assert db.entries.get_count() == 1
+    assert len(db.entries) == 1
     assert db.entries[0] == ida_domain.entries.EntryInfo(0, 0, '_start', None)
     assert db.entries.get_at_index(0) == ida_domain.entries.EntryInfo(0, 0, '_start', None)
     assert db.entries.get_by_ordinal(0) == ida_domain.entries.EntryInfo(0, 0, '_start', None)
@@ -527,6 +530,7 @@ def test_strings(test_env):
     db = test_env
 
     assert db.strings.get_count() == 3
+    assert len(db.strings) == 3
 
     expected_strings = [
         (0x3A0, 'Source string data'),
@@ -591,6 +595,7 @@ def test_names(test_env):
     db = test_env
 
     assert db.names.get_count() == 28
+    assert len(db.names) == 28
 
     expected_names = [
         (0x0, '_start'),
