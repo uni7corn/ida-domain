@@ -66,6 +66,14 @@ class Entries(DatabaseEntity):
     def __getitem__(self, index: int) -> EntryInfo:
         return self.get_at_index(index)
 
+    def __len__(self) -> int:
+        """Return the total number of entry points.
+
+        Returns:
+            int: The number of entry points in the program.
+        """
+        return self.get_count()
+
     def get_count(self) -> int:
         """Get the total number of entry points.
 
