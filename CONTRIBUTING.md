@@ -268,6 +268,11 @@ if __name__ == '__main__':
 - Address feedback promptly and professionally
 - Be prepared to make changes based on review comments
 - Ensure CI/CD checks pass
+- For running the full test suite on CI in forked repositories, if you have an IDA license, configure these repository secrets:
+  - `HCLI_API_KEY`: Generate an API key from your My Hex-Rays account [API Keys](https://my.hex-rays.com/dashboard/account-settings/api-keys) section
+  - `IDA_LICENSE_ID`: Get your license ID from your My Hex-Rays account [licenses](https://my.hex-rays.com/dashboard/licenses) section
+- Without these secrets, only code quality checks (linting) will run on your fork
+- The full test suite will automatically run on merge to the main repository
 
 ## Development Tips
 
