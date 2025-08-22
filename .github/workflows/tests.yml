@@ -39,7 +39,7 @@ jobs:
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Install IDA ${{ matrix.ida_version.version }}
-      if: ${{ secrets.HCLI_API_KEY && secrets.IDA_LICENSE_ID }}
+      if: ${{ secrets.HCLI_API_KEY != '' && secrets.IDA_LICENSE_ID != '' }}
       run: |
         echo "Installing hcli..."
         uv tool install ida-hcli==0.6.0
@@ -54,7 +54,7 @@ jobs:
       run: uv sync --extra dev
 
     - name: Install idapro
-      if: ${{ secrets.HCLI_API_KEY && secrets.IDA_LICENSE_ID }}
+      if: ${{ secrets.HCLI_API_KEY != '' && secrets.IDA_LICENSE_ID != '' }}
       run: uv pip install idapro
 
     - name: Code linting
@@ -64,13 +64,13 @@ jobs:
       run: uv run mypy ida_domain
 
     - name: Run tests and generate coverage
-      if: ${{ secrets.HCLI_API_KEY && secrets.IDA_LICENSE_ID }}
+      if: ${{ secrets.HCLI_API_KEY != '' && secrets.IDA_LICENSE_ID != '' }}
       run: uv run coverage run --source=ida_domain -m pytest -v --junitxml=test-results.xml
       env:
         IDADIR: /opt/ida/
 
     - name: Generate coverage reports
-      if: ${{ secrets.HCLI_API_KEY && secrets.IDA_LICENSE_ID }}
+      if: ${{ secrets.HCLI_API_KEY != '' && secrets.IDA_LICENSE_ID != '' }}
       run: |
         # Generate different coverage report formats
         # NOTE: coverage are broken in CI due to a bug in IDA 9.1
@@ -81,7 +81,7 @@ jobs:
 
     - name: Upload test results and coverage
       uses: actions/upload-artifact@v4
-      if: ${{ always() && secrets.HCLI_API_KEY && secrets.IDA_LICENSE_ID }}
+      if: ${{ always() && secrets.HCLI_API_KEY != '' && secrets.IDA_LICENSE_ID != '' }}
       with:
         name: test-results-and-coverage-ida-${{ matrix.ida_version.version }}
         path: |
@@ -91,7 +91,7 @@ jobs:
         retention-days: 30
 
     - name: Tests skipped notification
-      if: ${{ !secrets.HCLI_API_KEY || !secrets.IDA_LICENSE_ID }}
+      if: ${{ secrets.HCLI_API_KEY == '' || secrets.IDA_LICENSE_ID == '' }}
       run: |
         echo "Code quality checks completed successfully!"
         echo "IDA-specific tests were skipped"
