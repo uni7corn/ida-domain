@@ -21,7 +21,7 @@ nav:
       - llms.txt: llm.md
   - API Reference:
       - ref/database.md
-      - ref/basic_blocks.md
+      - ref/flowchart.md
       - ref/bytes.md
       - ref/comments.md
       - ref/entries.md

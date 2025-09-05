@@ -6,7 +6,7 @@ The IDA Domain API is organized around the following top level entities:
 - **[Entries](ref/entries.md)** - Entry point management and analysis
 - **[Segments](ref/segments.md)** - Memory segment operations
 - **[Functions](ref/functions.md)** - Function analysis and manipulation
-- **[Basic Blocks](ref/basic_blocks.md)** - Basic block operations
+- **[Flowchart](ref/flowchart.md)** - Control flow graph and basic blocks operations
 - **[Instructions](ref/instructions.md)** - Instruction-level analysis
 - **[Operands](ref/operands.md)** - Operand analysis and manipulation
 - **[Bytes](ref/bytes.md)** - Raw byte manipulation and analysis
