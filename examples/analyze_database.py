@@ -11,6 +11,7 @@ import argparse
 from dataclasses import asdict
 
 import ida_domain
+import ida_domain.flowchart
 from ida_domain.database import IdaCommandOptions
 
 
@@ -160,10 +161,10 @@ def traverse_strings(db: ida_domain.Database) -> None:
     if display_count < len(strings):
         print(f'Displaying first {display_count} strings:')
 
-    for i, (ea, content) in enumerate(strings[:display_count], 1):
+    for i, item in enumerate(strings[:display_count], 1):
         # Truncate very long strings for display
-        display_str = content[:50] + '...' if len(content) > 50 else content
-        print(f'  [{i:2d}] 0x{ea:08x}: "{display_str}"')
+        display_str = str(item)[:50] + '...' if len(str(item)) > 50 else str(i)
+        print(f'  [{i:2d}] 0x{item.address:08x}: "{display_str}"')
 
     if display_count < len(strings):
         print(f'  ... and {len(strings) - display_count} more strings')
@@ -259,7 +260,8 @@ def traverse_basic_blocks(db: ida_domain.Database) -> None:
     """
     print_section_header('BASIC BLOCKS')
 
-    basic_blocks = list(db.basic_blocks.get_between(db.minimum_ea, db.maximum_ea))
+    flowchart = ida_domain.flowchart.FlowChart(db, None, (db.minimum_ea, db.maximum_ea))
+    basic_blocks = list(flowchart)
     print(f'Total basic blocks: {len(basic_blocks)}')
 
     # Show first 15 basic blocks to avoid overwhelming output
@@ -268,7 +270,7 @@ def traverse_basic_blocks(db: ida_domain.Database) -> None:
         print(f'Displaying first {display_count} basic blocks:')
 
     for i, bb in enumerate(basic_blocks[:display_count], 1):
-        print(f'  [{i:2d}] Start: 0x{bb.start_ea:08x} | End: 0x{bb.end_ea:08x} | Size: {bb.size}')
+        print(f'  [{i:2d}] Start: 0x{bb.start_ea:08x} | End: 0x{bb.end_ea:08x}')
 
     if display_count < len(basic_blocks):
         print(f'  ... and {len(basic_blocks) - display_count} more basic blocks')
@@ -326,20 +328,20 @@ def traverse_cross_references(db: ida_domain.Database) -> None:
     print('Sample cross-references:')
 
     for addr in sample_addresses[:10]:  # Limit to first 10 addresses
-        xrefs_to = list(db.xrefs.get_to(addr))
-        xrefs_from = list(db.xrefs.get_from(addr))
+        xrefs_to = list(db.xrefs.to_ea(addr))
+        xrefs_from = list(db.xrefs.from_ea(addr))
 
         if xrefs_to or xrefs_from:
             print(f'  Address 0x{addr:08x}:')
 
             for xref in xrefs_to[:3]:  # Show max 3 xrefs to
-                type_name = db.xrefs.get_ref_type_name(xref.type)
-                print(f'    <- FROM 0x{xref.frm:08x} (type: {type_name})')
+                type_name = xref.type.name
+                print(f'    <- FROM 0x{xref.from_ea:08x} (type: {type_name})')
                 xref_count += 1
 
             for xref in xrefs_from[:3]:  # Show max 3 xrefs from
-                type_name = db.xrefs.get_ref_type_name(xref.type)
-                print(f'    -> TO   0x{xref.to:08x} (type: {type_name})')
+                type_name = xref.type.name
+                print(f'    -> TO   0x{xref.to_ea:08x} (type: {type_name})')
                 xref_count += 1
 
     print(f'Total cross-references displayed: {xref_count}')

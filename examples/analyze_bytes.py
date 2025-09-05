@@ -117,14 +117,14 @@ def analyze_bytes(db_path, search_pattern=None, patch_demo=False, max_results=20
 
         # Find and analyze strings
         string_count = 0
-        for addr, string_val in db.strings:
+        for item in db.strings:
             if string_count >= 3:  # Limit output
                 break
 
-            print(f'  String at {hex(addr)}: {repr(string_val)}')
+            print(f'  String at {hex(item.address)}: {str(item)}')
 
             # Try different string reading methods
-            cstring = bytes_handler.get_cstring_at(addr)
+            cstring = bytes_handler.get_cstring_at(item.address)
             if cstring:
                 print(f'    C-string: {repr(cstring)}')
 
@@ -216,9 +216,9 @@ def analyze_bytes(db_path, search_pattern=None, patch_demo=False, max_results=20
         test_addr = entry_point + 0x10
         if test_addr <= db.maximum_ea:
             next_head = bytes_handler.get_next_head(test_addr)
-            prev_head = bytes_handler.get_prev_head(test_addr)
-            next_addr = bytes_handler.get_next_addr(test_addr)
-            prev_addr = bytes_handler.get_prev_addr(test_addr)
+            prev_head = bytes_handler.get_previous_head(test_addr)
+            next_addr = bytes_handler.get_next_address(test_addr)
+            prev_addr = bytes_handler.get_previous_address(test_addr)
 
             print(f'  From address {hex(test_addr)}:')
             print(
